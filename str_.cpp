@@ -24,3 +24,22 @@ std::vector<std::string*>  SpiltStr(const std::string& TotalStr, const char& spi
 
 	return SpiliterResult;
 }
+
+//匹配第个字符串时候包含第一个字符串
+bool MatchStr(const std::string& str, const std::string& str1,unsigned int start = 0)
+{
+	for (unsigned int s = start, d = 0; s <= str.length();)
+	{
+		if (str[d] == str[s])
+		{
+			++d;
+			++s;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	return true;
+	
+}
