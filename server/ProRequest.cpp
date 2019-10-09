@@ -24,6 +24,15 @@ Data* ProRequest::MakeRespoData(const std::string& rname)
 	{
 		*(str + i) = tmpStr[i];
 	}
+
+	for (auto it = this->RequestList.begin(); it != this->RequestList.end();)
+	{
+		if (it->first == name)
+			this->RequestList.erase(it++);
+		else
+			++it;
+	}
+
 	return new Data(str, tmpStr.length());
 }
 
