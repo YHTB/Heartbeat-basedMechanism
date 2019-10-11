@@ -13,19 +13,27 @@ Data* fun(Data* const request)
 {
 	static ProRequest funs;
 	std::string reStr(request->buff);
-	funs.Analysis(reStr);
-	regex GetID("(;.*)");
-	smatch result;
+	std::cout << reStr << std::endl;
 	const int respon = funs.Analysis(reStr);
+	std::vector<std::string*> result;
 	switch (respon)
 	{
 	case Respond:
-		regex_match(reStr, result, GetID);
-		return funs.MakeRespoData(result[0]);
-		break;
+		result = SpiltStr(reStr, ':');
+		std::cout << "Who::" << *(result[1]) << std::endl;
+		if (SerchID(funs.ID_List, *result[1]) == -1)
+		{
+			return funs.MakeErrorData();
+		}
+
+		//std::cout<<"size:"<<result.size()<<*(result[0])<<std::endl;
+		return funs.MakeRespoData(*(result[1]));
+
 	case ErrData:
 		return funs.MakeErrorData();
-		break;
+
+	case SucData:
+		return funs.MakeSucData();
 	}
 
 }

@@ -10,53 +10,51 @@ Data* ProRequest::MakeErrorData()
 	}
 	return new Data(buff, 16);
 }
-Data* ProRequest::MakeRespoData(const std::string& rname)
+Data* ProRequest::MakeRespoData(const std::string& name)
 {
-	std::string name;
-	for (unsigned int i = 0; i < rname.length();)
+	unsigned int g = SerchID(this->ID_List, name);
+	std::string result = this->Context_List[g];
+	char* buff = new char[result.length()];
+	for (unsigned int i = 0; i <= result.length(); ++i)
 	{
-		name.push_back(rname[++i]);
+		*(buff + i) = result[i];
 	}
-	name += ";";
-	std::string tmpStr = this->RequestList.at(name);
-	char* str = new char[tmpStr.length()];
-	for (unsigned int i = 0; i <= tmpStr.length(); ++i)
-	{
-		*(str + i) = tmpStr[i];
-	}
+	this->ID_List.erase(this->ID_List.begin() + (g - 1));
+	this->Context_List.erase(this->Context_List.begin() + (g - 1));
 
-	for (auto it = this->RequestList.begin(); it != this->RequestList.end();)
-	{
-		if (it->first == name)
-			this->RequestList.erase(it++);
-		else
-			++it;
-	}
-
-	return new Data(str, tmpStr.length());
+	return new Data(buff, result.length());
 }
 
 int ProRequest::Analysis(const std::string& tmpStr)
 {
-	smatch      ID_result, Context_result, VoidR;
-	regex       Match_ID("([a-zA-Z1-9]*);");
-	regex       Match_SouAndContext("([A-Za-z1-9]*:.*)");
-	regex       Match_request("Request;");
-	//若检测到发送数据将他发送到请求表
-	if (regex_match(tmpStr, VoidR, Match_request))
+
+	std::vector<std::string*> Spilter;
+	std::cout << tmpStr << std::endl;
+	bool MaBool = MatchStr("Request:", tmpStr);
+	std::cout << ((MaBool) ? "Has" : "not") << std::endl;
+
+	if (MaBool)
 	{
+		std::cout << "match request" << std::endl;
 		return Respond;
-	}
-	else if ((regex_match(tmpStr, ID_result, Match_ID)) &&
-		(regex_match(tmpStr, Context_result, Match_SouAndContext)))
-	{
-		this->RequestList.insert(std::pair<std::string, std::string>
-			(ID_result[0], Context_result[1])
-		);
-		return SucData;
 	}
 	else
 	{
-		return ErrData;
+		Spilter = SpiltStr(tmpStr, '\t');
+		if (Spilter.size() == 3)
+		{
+			//若检测到发送数据将他发送到请求表
+			this->ID_List.push_back(*(Spilter[0]));
+			this->Context_List.push_back(*(Spilter[1]) + *(Spilter[2]));
+			return SucData;
+		}
+		else
+		{
+
+			std::cout << "Data Struct Failed!";
+			return ErrData;
+		}
+
 	}
+
 }

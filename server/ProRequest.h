@@ -1,8 +1,6 @@
 #pragma once
 #include "Server.h"
 
-
-
 class ProRequest {
 	friend Data* fun(Data* const);
 public:
@@ -16,7 +14,9 @@ protected:
 
 	Data* MakeErrorData();
 	Data* MakeRespoData(const std::string& name);
+	Data* MakeSucData();
 protected:
-	std::map<std::string, std::string> RequestList;
+	std::vector<std::string> ID_List;
+	std::vector<std::string> Context_List;
 
 };
