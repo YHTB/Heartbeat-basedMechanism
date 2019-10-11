@@ -6,6 +6,9 @@
 
 
 enum CONST_ { RecvBuff = 1024, SEN = 5 };
+
+
+
 class Client {
 public:
 	Client(const std::string& name = "User00",

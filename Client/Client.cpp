@@ -1,4 +1,5 @@
 #include "Client.h"
+
 Client::Client(const std::string& UserID,
 	const std::string& ServerIP,
 	const unsigned short& Port)
@@ -31,14 +32,14 @@ Data* Client::Packag(const std::string& str)
 	{
 		*(C_str + i) = str[i];
 	}
-	if (C_str != nullptr && (this->recv_data = new Data(C_str, str.length() + 1)) == nullptr)
+	if (C_str != nullptr && (this->send_data = new Data(C_str, str.length() + 1)) == nullptr)
 	{
 		std::cout << "Creating Data failed!!" << std::endl;
 		return nullptr;
 	}
 	else {
-		std::cout << this->recv_data << std::endl;
-		return this->recv_data;
+		//std::cout<<this->recv_data<<std::endl;
+		return this->send_data;
 	}
 
 }
@@ -49,40 +50,32 @@ void Client::SelfControlSend(const std::string& DirID)
 	std::string str;
 	std::cin >> str;
 
-	std::string Header = DirID + std::string(";") + this->UserID + std::string(":");
+	std::string Header = DirID + std::string("\t") + this->UserID + std::string("\t");
 	std::string result = Header + str;
 
 	std::cout << result << std::endl;
 
 	Packag(result);
-	std::cout << "this" << std::endl;
+	//std::cout<<"this"<<std::endl;
 
 	this->SendAndRecv();
 }
 
 void Client::autoRequest()
 {
-	static time_t Ptime = time(&Ptime);
-	static time_t Cur_time = time(&Cur_time);
+	std::cout << "SendToAutoRequest" << std::endl;
+	this->Packag(std::string("Request:") + this->UserID);
+	this->SendAndRecv();
 
 
-	if (Cur_time - Ptime == SEN)
+	std::cout << "OutPut:Message" << std::endl;
+	for (unsigned int i = 0; i <= this->recv_data->len &&
+		*(this->recv_data->buff) != '\0'; ++i)
 	{
-		Ptime = time(&Ptime);
-		std::cout << "SendToAutoRequest" << std::endl;
-		this->Packag(std::string("Request:") + this->UserID + std::string(";"));
-		this->SendAndRecv();
-		if (*(this->recv_data->buff) != '\0')
-		{
-			for (unsigned int i = 0; i <= this->recv_data->len &&
-				*(this->recv_data->buff) != '\0'; ++i)
-			{
-			std::cout << *(this->recv_data->buff + i);
-			}
-			std::cout << std::endl;
-		}
+		std::cout << *(this->recv_data->buff + i);
 	}
-	Cur_time = time(&Cur_time);
+	std::cout << std::endl;
+
 }
 
 void Client::run()
@@ -93,10 +86,11 @@ void Client::run()
 	while (flag)
 	{
 		std::cout << "what do you want to do:\n"
-			<< "u : SendMessageToUser"
-			<< "q : quit"
+			<< "u : SendMessageToUser\n"
+			<< "a : SendRequest"
+			<< "q : quit\n"
 			<< std::endl;
-
+		//this->autoRequest();
 		std::cin >> c;
 		switch (c)
 		{
@@ -107,6 +101,10 @@ void Client::run()
 		case 'u':
 		case 'U':
 			this->core();
+			break;
+		case 'a':
+		case 'A':
+			this->autoRequest();
 			break;
 		}
 	}
@@ -119,5 +117,5 @@ void Client::core()
 	std::string DirID;
 	std::cin >> DirID;
 	this->SelfControlSend(DirID);
-	this->autoRequest();
+	//this->autoRequest();
 }
